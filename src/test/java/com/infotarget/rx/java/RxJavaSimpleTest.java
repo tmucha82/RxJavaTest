@@ -7,7 +7,10 @@ import com.infotarget.rx.java.weather.Weather;
 import com.infotarget.rx.java.weather.WeatherClient;
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
+import java.util.Observer;
 import org.junit.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +43,7 @@ public class RxJavaSimpleTest {
     }
 
     @Test
-    public void simpleIntervalObservable() throws InterruptedException {
+    public void simpleIntervalObservable() {
         Observable
                 .interval(1, TimeUnit.SECONDS)
                 .subscribe(this::print);
@@ -87,6 +90,10 @@ public class RxJavaSimpleTest {
                 .subscribe(this::print);
 
         Sleeper.sleep(Duration.ofSeconds(2));
+    }
+
+    @Test
+    public void test() {
     }
 
     private <T> void print(T event) {
