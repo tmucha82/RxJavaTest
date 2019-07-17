@@ -48,6 +48,10 @@ public class Chapter6 {
                 .concatWith(delayedCompletion())
                 .sample(1, SECONDS)
                 .subscribe(System.out::println);
+        // or
+        delayedNames
+                .sample(1, SECONDS, true)
+                .subscribe(System.out::println);
 
         Sleeper.sleep(Duration.ofSeconds(5));
     }
@@ -124,7 +128,6 @@ public class Chapter6 {
         events
                 .buffer(10)
                 .subscribe(repository::storeAll);
-
     }
 
     @Test
@@ -195,8 +198,8 @@ public class Chapter6 {
                 .filter(x -> !isBusinessHour())
                 .map(x -> Duration.ofMillis(200));
 
-        Observable<Duration> openings = Observable.merge(
-                insideBusinessHours, outsideBusinessHours);
+        Observable<Duration> openings = Observable
+                .merge(insideBusinessHours, outsideBusinessHours);
 
         Observable<TeleData> upstream = Observable.empty();
 
@@ -225,11 +228,16 @@ public class Chapter6 {
 
     @Test
     public void sample_216() throws Exception {
-        Observable<KeyEvent> keyEvents = Observable.empty();
+        Observable<KeyEvent> keyEvents = Observable
+                .interval(100, MILLISECONDS)
+                .map(i -> new KeyEvent());
 
         Observable<Observable<KeyEvent>> windows = keyEvents.window(1, SECONDS);
         Observable<Long> eventPerSecond = windows
                 .flatMap(eventsInSecond -> eventsInSecond.count().toObservable());
+
+        eventPerSecond.subscribe(System.out::println);
+        Sleeper.sleep(Duration.ofSeconds(6));
     }
 
 }
