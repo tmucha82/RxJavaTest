@@ -8,11 +8,11 @@ import java.time.Duration;
 
 final public class WeatherClient {
 
-    private final Logger log = LoggerFactory.getLogger(WeatherClient.class);
+  private final Logger log = LoggerFactory.getLogger(WeatherClient.class);
 
-    public Weather fetch(final String city) {
-        log.info("Loading for {}", city);
-        Sleeper.sleep(Duration.ofMillis(900));
-        return new Weather();
-    }
+  public Weather fetch(final String city) {
+    log.info("Loading for {}", city);
+    Sleeper.sleep(Duration.ofMillis(900));
+    return new Weather(String.format("Weather for city = %s.", city));
+  }
 }

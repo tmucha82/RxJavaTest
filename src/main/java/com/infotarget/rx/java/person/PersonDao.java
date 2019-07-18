@@ -8,12 +8,12 @@ import java.time.Duration;
 
 final public class PersonDao {
 
-    private final Logger log = LoggerFactory.getLogger(PersonDao.class);
+  private final Logger log = LoggerFactory.getLogger(PersonDao.class);
 
-    public Person findById(final int id) {
-        log.info("Getting person with if {}", id);
-        Sleeper.sleep(Duration.ofSeconds(1));
-        return new Person(id);
-    }
+  public Person findById(final int id) {
+    log.info("Getting person with if {}", id);
+    Sleeper.sleep(Duration.ofSeconds(1));
+    return new Person(id);
+  }
 
 }
