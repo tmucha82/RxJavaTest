@@ -1,12 +1,15 @@
 package com.infotarget.rx.java.book.chapter7;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.schedulers.Timed;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.concurrent.TimeoutException;
@@ -272,36 +275,33 @@ public class Chapter7 {
                         (date, x) -> date);
     }
 
-    // FIXME
     @Test
     public void sample_253() throws Exception {
-//		nextSolarEclipse(LocalDate.of(2016, SEPTEMBER, 1))
-//				.timeout(
-//						() -> Observable.timer(1000, TimeUnit.MILLISECONDS),
-//						date -> Observable.timer(100, MILLISECONDS));
+        nextSolarEclipse(LocalDate.of(2016, SEPTEMBER, 1))
+                .timeout(
+                        Observable.timer(1000, MILLISECONDS),
+                        date -> Observable.timer(100, MILLISECONDS));
     }
 
-    //FIXME
     @Test
     public void sample_262() throws Exception {
-//		Observable<TimeInterval<LocalDate>> intervals =
-//				nextSolarEclipse(LocalDate.of(2016, JANUARY, 1))
-//						.timeInterval();
+        Observable<Timed<LocalDate>> intervals =
+                nextSolarEclipse(LocalDate.of(2016, JANUARY, 1))
+                        .timeInterval();
     }
 
-    //FIXME
     @Test
     public void sample_271() throws Exception {
-//		Observable<Instant> timestamps = Observable
-//				.fromCallable(() -> dbQuery())
-//				.doOnSubscribe(() -> log.info("subscribe()"))
-//				.doOnRequest(c -> log.info("Requested {}", c))
-//				.doOnNext(instant -> log.info("Got: {}", instant));
-//
-//		timestamps
-//				.zipWith(timestamps.skip(1), Duration::between)
-//				.map(Object::toString)
-//				.subscribe(log::info);
+        Flowable<Instant> timestamps = Flowable
+                .fromCallable(this::dbQuery)
+                .doOnSubscribe(disposable -> log.info("subscribe()"))
+                .doOnRequest(c -> log.info("Requested {}", c))
+                .doOnNext(instant -> log.info("Got: {}", instant));
+
+        timestamps
+                .zipWith(timestamps.skip(1), Duration::between)
+                .map(Object::toString)
+                .subscribe(log::info);
     }
 
     private Instant dbQuery() {
