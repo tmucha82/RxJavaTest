@@ -5,13 +5,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rx.schedulers.TimeInterval;
 
 import java.math.BigInteger;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.Month.*;
