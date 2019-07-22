@@ -37,7 +37,7 @@ public class Backpressure {
         .range(1, 1_000_000_000)
         .map(Dish::new)
         .subscribe(x -> {
-          System.out.println("Washing: " + x);
+          log.info("Washing: " + x);
           sleepMillis(50);
         });
   }
@@ -49,7 +49,7 @@ public class Backpressure {
     dishes
         .observeOn(Schedulers.io())
         .subscribe(x -> {
-          System.out.println("Washing: " + x);
+          log.info("Washing: " + x);
           sleepMillis(50);
         });
 
@@ -59,18 +59,18 @@ public class Backpressure {
     Sleeper.sleep(Duration.ofMillis(millis));
   }
 
-  Flowable<Integer> myRange(int from, int count) {
-    return Flowable.create(subscriber -> {
+  Observable<Integer> myRange(int from, int count) {
+    return Observable.create(subscriber -> {
       int i = from;
       while (i < from + count) {
-        if (!subscriber.isCancelled()) {
+        if (!subscriber.isDisposed()) {
           subscriber.onNext(i++);
         } else {
           return;
         }
       }
       subscriber.onComplete();
-    }, BackpressureStrategy.BUFFER);
+    });
   }
 
   @Test
@@ -79,7 +79,7 @@ public class Backpressure {
         .map(Dish::new)
         .observeOn(Schedulers.io())
         .subscribe(x -> {
-              System.out.println("Washing: " + x);
+              log.info("Washing: " + x);
               sleepMillis(50);
             },
             Throwable::printStackTrace
@@ -99,7 +99,7 @@ public class Backpressure {
 
           @Override
           public void onNext(Integer integer) {
-
+            log.info("integer = " + integer);
           }
 
           @Override
@@ -122,13 +122,13 @@ public class Backpressure {
 
           {
             {
-              request(3);
+              request(3); // it does not work on rx2 0 look above
             }
           }
 
           @Override
           public void onNext(Integer integer) {
-
+            log.info("integer = " + integer);
           }
 
           @Override
@@ -178,12 +178,13 @@ public class Backpressure {
   public void sample_173() throws Exception {
     myRange(1, 1_000_000_000)
         .map(Dish::new)
+        .toFlowable(BackpressureStrategy.BUFFER)
         .onBackpressureBuffer()
         //.onBackpressureBuffer(1000, () -> log.warn("Buffer full"))
         //.onBackpressureDrop(dish -> log.warn("Throw away {}", dish))
         .observeOn(Schedulers.io())
         .subscribe(x -> {
-          System.out.println("Washing: " + x);
+          log.info("Washing: " + x);
           sleepMillis(50);
         });
   }
@@ -237,7 +238,7 @@ public class Backpressure {
     Observable<Long> naturals = Observable.create(subscriber -> {
       long cur = 0;
       while (!subscriber.isDisposed()) {
-        System.out.println("Produced: " + cur);
+        log.info("Produced: " + cur);
         subscriber.onNext(cur++);
       }
     });

@@ -7,22 +7,29 @@ class Health {
 }
 
 class Score {
-	boolean isHigh() {
-		return true;
-	}
+  boolean isHigh() {
+    return true;
+  }
 }
 
 class InsuranceContract {
 }
 
 class Income {
+  final private int _i;
 
+  Income(int i) {
+    _i = i;
+  }
 
-	public Income(int i) {
-	}
+  static Income no() {
+    return new Income(0);
+  }
 
-	static Income no() {
-		return new Income(0);
-	}
-
+  @Override
+  public String toString() {
+    return "Income{" +
+        "_i=" + _i +
+        '}';
+  }
 }
