@@ -250,21 +250,26 @@ public class Chapter7 {
   public void sample_188() throws Exception {
     final Observable<Integer> integerObservable = Observable
         .fromArray(1, 2, 3, 4, 5, 6)
-        .flatMap(s -> Observable
-            .just(s)
-            .onExceptionResumeNext(Observable.just(-1)))
-        .flatMap(i -> {
+        .map(i -> {
               if (i % 3 == 0) {
-                return Observable.error(new RuntimeException("Haha"));
+                throw new RuntimeException("Haha");
               } else {
-                return Observable.just(i);
+                return i;
               }
             }
         );
 
     integerObservable
-        .onExceptionResumeNext(Observable.just(-1))
-        .onErrorResumeNext(Observable.just(-3))
+        .onErrorResumeNext(Observable.empty())
+        .flatMap(i -> Observable.just(i)
+                .onErrorResumeNext(Observable.just(-3))
+                .onExceptionResumeNext(Observable.empty())
+        )
+        .flatMap(
+            Observable::just,
+            th -> Observable.just(-3),
+            Observable::empty)
+
         .subscribe(
             System.out::println,
             throwable -> log.error("That escalated quickly", throwable));
