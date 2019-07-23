@@ -2,6 +2,7 @@ package com.infotarget.rx.java.book.chapter7;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
 import io.reactivex.schedulers.Timed;
 import org.junit.Ignore;
@@ -269,7 +270,6 @@ public class Chapter7 {
             Observable::just,
             th -> Observable.just(-3),
             Observable::empty)
-
         .subscribe(
             System.out::println,
             throwable -> log.error("That escalated quickly", throwable));
@@ -300,6 +300,60 @@ public class Chapter7 {
 
     TestObserver<String> test = stringObservable.test();
     test.assertResult("1-1-X");
+  }
+
+  @Test
+  public void sample_190() throws Exception {
+    Observable
+        .fromArray(1, 2, 3, 4, 5, 6)
+        .flatMapSingle(i -> Single.fromCallable(() -> {
+          if (i % 3 == 0) {
+            throw new RuntimeException("Haha");
+          } else {
+            return i;
+          }
+        })
+            .onErrorReturnItem(-1))
+        .filter(i -> i >= 0)
+        .subscribe(
+            System.out::println,
+            throwable -> log.error("That escalated quickly", throwable));
+  }
+
+
+  @Test
+  public void sample_191() {
+    Observable
+        .fromArray(1, 2, 3, 4, 5, 6)
+        .flatMap(ii -> Observable.just(ii)
+            .map(i -> {
+              if (i % 3 == 0) {
+                throw new RuntimeException("Haha");
+              } else {
+                return i;
+              }
+            }).onErrorResumeNext(Observable.empty())
+        )
+        .subscribe(
+            System.out::println,
+            throwable -> log.error("That escalated quickly", throwable));
+  }
+
+  @Test
+  public void sample_192() {
+    Observable
+        .fromArray(1, 2, 3, 4, 5, 6)
+        .concatMapDelayError(i -> Observable.fromCallable(() -> {
+          if (i % 3 == 0) {
+            throw new RuntimeException("Haha");
+          } else {
+            return i;
+          }
+        }))
+        .onErrorResumeNext(Observable.empty())
+        .subscribe(
+            System.out::println,
+            throwable -> log.error("That escalated quickly", throwable));
   }
 
   Observable<Confirmation> confirmation() {
@@ -391,5 +445,4 @@ public class Chapter7 {
         .doOnError(th -> log.warn("onError", th))
         .onErrorReturn(th -> "Fallback");
   }
-
 }

@@ -17,7 +17,6 @@ dependencies {
     compile 'org.apache.activemq:activemq-camel:5.14.0'
     compile 'org.apache.activemq:activemq-client:5.14.0'
 
-    testCompile 'junit:junit:4.11'
     testCompile 'org.springframework:spring-context:4.3.4.RELEASE'
     testCompile 'org.springframework:spring-jms:4.3.4.RELEASE'
     testCompile 'org.springframework:spring-jdbc:4.3.4.RELEASE'
@@ -36,4 +35,8 @@ dependencies {
     testCompile 'org.apache.activemq:activemq-client:5.14.1'
 
     testCompile 'com.google.android:android:4.1.1.4'
+
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.assertj:assertj-core:3.5.2'
+    testCompile 'org.mockito:mockito-core:2.2.15'
 }
