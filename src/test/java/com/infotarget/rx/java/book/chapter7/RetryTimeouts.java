@@ -1,11 +1,13 @@
 package com.infotarget.rx.java.book.chapter7;
 
+import com.infotarget.rx.java.sleeper.Sleeper;
 import io.reactivex.Observable;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -13,101 +15,113 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Ignore
 public class RetryTimeouts {
 
-	private static final Logger log = LoggerFactory.getLogger(RetryTimeouts.class);
+  private static final Logger log = LoggerFactory.getLogger(RetryTimeouts.class);
 
-	Observable<String> risky() {
-		return Observable.fromCallable(() -> {
-			if (Math.random() < 0.1) {
-				Thread.sleep((long) (Math.random() * 2000));
-				return "OK";
-			} else {
-				throw new RuntimeException("Transient");
-			}
-		});
-	}
+  Observable<String> risky() {
+    return Observable.fromCallable(() -> {
+      if (Math.random() < 0.1) {
+        Thread.sleep((long) (Math.random() * 2000));
+        return "OK";
+      } else {
+        throw new RuntimeException("Transient");
+      }
+    });
+  }
 
-	@Test
-	public void sample_281() {
-		risky()
-				.timeout(1, SECONDS)
-				.doOnError(th -> log.warn("Will retry", th))
-				.retry()
-				.subscribe(log::info);
-	}
+  @Test
+  public void sample_281() {
+    risky()
+        .timeout(1, SECONDS)
+        .doOnError(th -> log.warn("Will retry", th))
+        .retry()
+        .subscribe(log::info);
+  }
 
-	@Test
-	public void sample_291() {
-		risky().cache().retry();  //BROKEN
-	}
+  @Test
+  public void sample_291() {
+    risky().cache().retry();  //BROKEN
+  }
 
-	@Test
-	public void sample_296() {
-		Observable
-				.defer(() -> risky())
-				.retry();
-	}
+  @Test
+  public void sample_296() {
+    Observable
+        .defer(() -> risky())
+        .retry();
+  }
 
-	@Test
-	public void sample_303() {
-		risky()
-				.timeout(1, SECONDS)
-				.retry(10);
-	}
+  @Test
+  public void sample_303() {
+    risky()
+        .timeout(1, SECONDS)
+        .retry(10);
+  }
 
-	@Test
-	public void sample_310() {
-		risky()
-				.timeout(1, SECONDS)
-				.retry((attempt, e) ->
-						attempt <= 10 && !(e instanceof TimeoutException));
-	}
+  @Test
+  public void sample_310() {
+    risky()
+        .timeout(1, SECONDS)
+        .retry((attempt, e) ->
+            attempt <= 10 && !(e instanceof TimeoutException));
+  }
 
-	@Test
-	public void sample_66() {
-		risky()
-				.timeout(1, SECONDS)
+  @Test
+  public void sample_66() {
+    risky()
+        .timeout(1, SECONDS)
 //				.retryWhen(failures -> failures.take(10))
-				.retryWhen(failures -> failures.delay(1, SECONDS));
-	}
+        .retryWhen(failures -> failures.delay(1, SECONDS));
+  }
 
-	private static final int ATTEMPTS = 11;
+  private static final int ATTEMPTS = 11;
 
-	@Test
-	public void sample_74() {
-		risky()
-				.timeout(1, SECONDS)
-				.retryWhen(failures -> failures
-						.zipWith(Observable.range(1, ATTEMPTS), (err, attempt) ->
-								attempt < ATTEMPTS ?
-										Observable.timer(1, SECONDS) :
-										Observable.error(err))
-						.flatMap(x -> x)
-				);
-	}
+  @Test
+  public void sample_74() {
+    risky()
+        .timeout(1, SECONDS)
+        .retryWhen(failures -> {
+          System.out.println("Retrying ...");
+          Observable<?> retries = failures
+              .zipWith(Observable.range(1, ATTEMPTS), (err, attempt) ->
+                  attempt < ATTEMPTS ?
+                      Observable.timer(1, SECONDS) :
+                      Observable.error(err))
+              .flatMap(x -> x);
+          retries.subscribe(i -> System.out.println("Retrying: " + i));
+          return retries;
+        })
+        .subscribe(System.out::println, System.err::println);
+    Sleeper.sleep(Duration.ofSeconds(15));
+  }
 
-	@Test
-	public void sample_89() {
-		risky()
-				.timeout(1, SECONDS)
-				.retryWhen(failures -> failures
-						.zipWith(Observable.range(1, ATTEMPTS),
-								this::handleRetryAttempt)
-						.flatMap(x -> x)
-				);
-	}
+  @Test
+  public void sample_89() {
+    risky()
+        .timeout(1, SECONDS)
+        .retryWhen(failures -> {
+          Observable<Long> retries = failures
+              .zipWith(Observable.range(1, ATTEMPTS),
+                  this::handleRetryAttempt)
+              .flatMap(x -> x);
+          retries.subscribe(i -> System.out.println("Retrying: " + i));
+          return retries;
+        })
+        .subscribe(System.out::println, System.err::println);
+    Sleeper.sleep(Duration.ofSeconds(15));
+  }
 
-	Observable<Long> handleRetryAttempt(Throwable err, int attempt) {
-		switch (attempt) {
-			case 1:
-				return Observable.just(42L);
-			case ATTEMPTS:
-				return Observable.error(err);
-			default:
-				long expDelay = (long) Math.pow(2, attempt - 2);
-				return Observable.timer(expDelay, SECONDS);
-		}
-	}
-
+  Observable<Long> handleRetryAttempt(Throwable err, int attempt) {
+    switch (attempt) {
+      case 1:
+        return Observable.just(42L);
+      case ATTEMPTS:
+        return Observable.error(err);
+      default:
+        long expDelay = (long) Math.pow(2, attempt - 2);
+        return Observable
+            .timer(expDelay, SECONDS)
+            .map(x -> expDelay);
+    }
+  }
 
 
 }
