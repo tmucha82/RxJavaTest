@@ -39,4 +39,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:3.5.2'
     testCompile 'org.mockito:mockito-core:2.2.15'
+
+    testCompile 'com.codahale.metrics:metrics-core:3.0.2'
+    testCompile 'com.netflix.hystrix:hystrix-core:1.5.8'
+    testCompile 'com.netflix.hystrix:hystrix-metrics-event-stream:1.5.8'
 }
