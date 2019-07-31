@@ -20,7 +20,6 @@ dependencies {
     testCompile 'org.springframework:spring-context:4.3.4.RELEASE'
     testCompile 'org.springframework:spring-jms:4.3.4.RELEASE'
     testCompile 'org.springframework:spring-jdbc:4.3.4.RELEASE'
-    testCompile 'io.reactivex:rxnetty-http:0.5.2-rc.4'
     testCompile 'org.postgresql:postgresql:9.4-1206-jdbc42'
     testCompile 'com.ning:async-http-client:1.9.40'
 
@@ -40,7 +39,10 @@ dependencies {
     testCompile 'org.assertj:assertj-core:3.5.2'
     testCompile 'org.mockito:mockito-core:2.2.15'
 
+    testCompile 'com.squareup.retrofit2:adapter-rxjava2:2.6.0'
+    testCompile 'com.squareup.retrofit2:converter-jackson:2.6.0'
+
     testCompile 'com.codahale.metrics:metrics-core:3.0.2'
-    testCompile 'com.netflix.hystrix:hystrix-core:1.5.8'
-    testCompile 'com.netflix.hystrix:hystrix-metrics-event-stream:1.5.8'
+
+    testCompile 'com.google.code.findbugs:jsr305:3.0.2'
 }
